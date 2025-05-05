@@ -3,6 +3,7 @@ import React from "react";
 import { cn } from "@/lib/utils";
 import { Heart, ShoppingBag } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
+import { useWishlist } from "@/contexts/WishlistContext";
 
 interface ProductCardProps {
   id: string;
@@ -28,9 +29,18 @@ const ProductCard: React.FC<ProductCardProps> = ({
   className,
 }) => {
   const { addToCart } = useCart();
+  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
 
   const handleAddToCart = () => {
     addToCart({ id, name, brand, price, imageUrl });
+  };
+
+  const handleWishlistToggle = () => {
+    if (isInWishlist(id)) {
+      removeFromWishlist(id);
+    } else {
+      addToWishlist({ id, name, brand, price, imageUrl });
+    }
   };
 
   return (
@@ -60,8 +70,22 @@ const ProductCard: React.FC<ProductCardProps> = ({
         
         {/* Actions */}
         <div className="absolute top-2 right-2 flex flex-col gap-2 transform translate-x-10 opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100">
-          <button className="bg-white p-2 rounded-full shadow-md hover:bg-luxe-rosegold transition-colors">
-            <Heart className="h-4 w-4 text-luxe-charcoal" />
+          <button 
+            className={cn(
+              "p-2 rounded-full shadow-md transition-colors",
+              isInWishlist(id) 
+                ? "bg-luxe-magenta hover:bg-luxe-magenta/90" 
+                : "bg-white hover:bg-luxe-rosegold"
+            )}
+            onClick={handleWishlistToggle}
+          >
+            <Heart 
+              className={cn(
+                "h-4 w-4", 
+                isInWishlist(id) ? "text-white" : "text-luxe-charcoal"
+              )} 
+              fill={isInWishlist(id) ? "currentColor" : "none"}
+            />
           </button>
           <button 
             className="bg-white p-2 rounded-full shadow-md hover:bg-luxe-rosegold transition-colors"
