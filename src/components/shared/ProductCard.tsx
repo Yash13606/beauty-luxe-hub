@@ -2,6 +2,7 @@
 import React from "react";
 import { cn } from "@/lib/utils";
 import { Heart, ShoppingBag } from "lucide-react";
+import { useCart } from "@/contexts/CartContext";
 
 interface ProductCardProps {
   id: string;
@@ -26,6 +27,12 @@ const ProductCard: React.FC<ProductCardProps> = ({
   isBestseller = false,
   className,
 }) => {
+  const { addToCart } = useCart();
+
+  const handleAddToCart = () => {
+    addToCart({ id, name, brand, price, imageUrl });
+  };
+
   return (
     <div 
       className={cn(
@@ -56,7 +63,10 @@ const ProductCard: React.FC<ProductCardProps> = ({
           <button className="bg-white p-2 rounded-full shadow-md hover:bg-luxe-rosegold transition-colors">
             <Heart className="h-4 w-4 text-luxe-charcoal" />
           </button>
-          <button className="bg-white p-2 rounded-full shadow-md hover:bg-luxe-rosegold transition-colors">
+          <button 
+            className="bg-white p-2 rounded-full shadow-md hover:bg-luxe-rosegold transition-colors"
+            onClick={handleAddToCart}
+          >
             <ShoppingBag className="h-4 w-4 text-luxe-charcoal" />
           </button>
         </div>

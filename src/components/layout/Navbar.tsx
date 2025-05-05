@@ -2,10 +2,11 @@
 import React, { useState } from "react";
 import { Search, ShoppingBag, Heart, User, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useCart } from "@/contexts/CartContext";
 
 const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [cartCount] = useState(0);
+  const { totalItems, setIsCartOpen } = useCart();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -98,11 +99,14 @@ const Navbar: React.FC = () => {
             <button className="flex items-center justify-center w-8 h-8 text-luxe-charcoal hover:text-luxe-magenta">
               <Heart className="h-5 w-5" />
             </button>
-            <button className="relative flex items-center justify-center w-8 h-8 text-luxe-charcoal hover:text-luxe-magenta">
+            <button 
+              className="relative flex items-center justify-center w-8 h-8 text-luxe-charcoal hover:text-luxe-magenta"
+              onClick={() => setIsCartOpen(true)}
+            >
               <ShoppingBag className="h-5 w-5" />
-              {cartCount > 0 && (
+              {totalItems > 0 && (
                 <span className="absolute -top-1 -right-1 bg-luxe-magenta text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
-                  {cartCount}
+                  {totalItems}
                 </span>
               )}
             </button>
