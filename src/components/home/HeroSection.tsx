@@ -27,9 +27,9 @@ const HeroSection: React.FC = () => {
               <div className="absolute top-0 -right-4 w-72 h-72 bg-luxe-rosegold rounded-full mix-blend-multiply filter blur-3xl opacity-20" />
               <div className="absolute -bottom-8 left-10 w-72 h-72 bg-luxe-magenta rounded-full mix-blend-multiply filter blur-3xl opacity-20" />
               
-              {/* Main image */}
+              {/* Main image - updated to use your uploaded image */}
               <img
-                src="https://images.unsplash.com/photo-1612938376085-13c3a86ea63d?q=80&w=1000&auto=format&fit=crop"
+                src="/lovable-uploads/9d036e55-eca4-4781-a3d7-cee61f1016b5.png"
                 alt="Luxury cosmetics collection"
                 className="relative rounded-xl shadow-2xl object-cover w-full h-auto aspect-[4/5]"
               />

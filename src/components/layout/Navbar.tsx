@@ -1,14 +1,58 @@
 
-import React, { useState } from "react";
-import { Search, ShoppingBag, Heart, User, Menu, X } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Search, ShoppingBag, Heart, User, Menu, X, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCart } from "@/contexts/CartContext";
 import { useWishlist } from "@/contexts/WishlistContext";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [user, setUser] = useState<any>(null);
   const { totalItems, setIsCartOpen } = useCart();
   const { totalWishlistItems, setIsWishlistOpen } = useWishlist();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Check current user on load
+    const checkUser = async () => {
+      const { data } = await supabase.auth.getSession();
+      setUser(data.session?.user || null);
+    };
+    
+    checkUser();
+
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setUser(session?.user || null);
+      }
+    );
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  const handleSignOut = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      toast.success("Signed out successfully");
+      navigate("/");
+    } catch (error: any) {
+      toast.error(error.message || "Error signing out");
+    }
+  };
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -57,10 +101,12 @@ const Navbar: React.FC = () => {
 
           {/* Logo */}
           <div className="flex-1 lg:flex-initial text-center lg:text-left">
-            <h1 className="font-playfair font-bold text-2xl text-luxe-charcoal tracking-wide">
-              LUXE<span className="text-luxe-magenta">GLOW</span>
-            </h1>
-            <p className="hidden lg:block text-xs text-gray-500 italic">Where Luxury Meets Beauty</p>
+            <Link to="/">
+              <h1 className="font-playfair font-bold text-2xl text-luxe-charcoal tracking-wide">
+                LUXE<span className="text-luxe-magenta">GLOW</span>
+              </h1>
+              <p className="hidden lg:block text-xs text-gray-500 italic">Where Luxury Meets Beauty</p>
+            </Link>
           </div>
 
           {/* Desktop Navigation */}
@@ -85,12 +131,12 @@ const Navbar: React.FC = () => {
                 </div>
               </div>
             ))}
-            <a href="#" className="text-sm font-medium hover:text-luxe-magenta">
+            <Link to="/brands" className="text-sm font-medium hover:text-luxe-magenta">
               Brands
-            </a>
-            <a href="#" className="text-sm font-medium hover:text-luxe-magenta">
+            </Link>
+            <Link to="/beauty-journal" className="text-sm font-medium hover:text-luxe-magenta">
               Beauty Journal
-            </a>
+            </Link>
           </nav>
 
           {/* Search and Actions */}
@@ -120,9 +166,36 @@ const Navbar: React.FC = () => {
                 </span>
               )}
             </button>
-            <button className="hidden lg:flex items-center justify-center w-8 h-8 text-luxe-charcoal hover:text-luxe-magenta">
-              <User className="h-5 w-5" />
-            </button>
+            
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="hidden lg:flex items-center justify-center w-8 h-8 text-luxe-charcoal hover:text-luxe-magenta">
+                    <User className="h-5 w-5" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <div className="px-3 py-2 text-sm font-medium text-luxe-charcoal">
+                    {user.user_metadata?.full_name || user.email}
+                  </div>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem>My Account</DropdownMenuItem>
+                  <DropdownMenuItem>Orders</DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleSignOut} className="text-red-500 hover:text-red-600">
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Link 
+                to="/auth" 
+                className="hidden lg:flex items-center justify-center w-8 h-8 text-luxe-charcoal hover:text-luxe-magenta"
+              >
+                <User className="h-5 w-5" />
+              </Link>
+            )}
           </div>
         </div>
       </div>
@@ -136,9 +209,11 @@ const Navbar: React.FC = () => {
       >
         <div className="flex flex-col h-full overflow-y-auto">
           <div className="flex items-center justify-between p-4 border-b">
-            <h1 className="font-playfair font-bold text-xl">
-              LUXE<span className="text-luxe-magenta">GLOW</span>
-            </h1>
+            <Link to="/" onClick={() => setIsMenuOpen(false)}>
+              <h1 className="font-playfair font-bold text-xl">
+                LUXE<span className="text-luxe-magenta">GLOW</span>
+              </h1>
+            </Link>
             <button onClick={toggleMenu}>
               <X className="h-6 w-6" />
             </button>
@@ -166,13 +241,47 @@ const Navbar: React.FC = () => {
                 </div>
               ))}
               <div>
-                <h3 className="font-medium text-luxe-charcoal">Brands</h3>
+                <Link 
+                  to="/brands" 
+                  className="block font-medium text-luxe-charcoal"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Brands
+                </Link>
               </div>
               <div>
-                <h3 className="font-medium text-luxe-charcoal">Beauty Journal</h3>
+                <Link 
+                  to="/beauty-journal" 
+                  className="block font-medium text-luxe-charcoal"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Beauty Journal
+                </Link>
               </div>
               <div>
-                <h3 className="font-medium text-luxe-charcoal">Account</h3>
+                {user ? (
+                  <div className="space-y-2">
+                    <h3 className="font-medium text-luxe-charcoal">Account</h3>
+                    <div className="pl-4 space-y-2">
+                      <a href="#" className="block text-sm text-gray-600">My Account</a>
+                      <a href="#" className="block text-sm text-gray-600">Orders</a>
+                      <button 
+                        onClick={handleSignOut}
+                        className="block text-sm text-red-500"
+                      >
+                        Sign Out
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <Link 
+                    to="/auth" 
+                    className="block font-medium text-luxe-charcoal"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Sign In / Register
+                  </Link>
+                )}
               </div>
             </nav>
           </div>
