@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React from "react";
 import { X, Heart, ShoppingBag } from "lucide-react";
 import { useWishlist } from "@/contexts/WishlistContext";
 import Button from "@/components/shared/Button";
@@ -11,10 +11,10 @@ const Wishlist: React.FC = () => {
     removeFromWishlist, 
     moveToCart,
     clearWishlist,
-    totalWishlistItems 
+    totalWishlistItems,
+    isWishlistOpen,
+    setIsWishlistOpen
   } = useWishlist();
-  
-  const [isWishlistOpen, setIsWishlistOpen] = useState(false);
 
   return (
     <>

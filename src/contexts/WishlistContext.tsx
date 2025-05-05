@@ -1,6 +1,7 @@
 
 import React, { createContext, useState, useEffect, useContext } from "react";
 import { toast } from "sonner";
+import { useCart } from "./CartContext";
 
 export interface WishlistItem {
   id: string;
@@ -18,6 +19,8 @@ interface WishlistContextType {
   moveToCart: (id: string) => void;
   clearWishlist: () => void;
   totalWishlistItems: number;
+  setIsWishlistOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  isWishlistOpen: boolean;
 }
 
 const WishlistContext = createContext<WishlistContextType | undefined>(undefined);
@@ -25,9 +28,10 @@ const WishlistContext = createContext<WishlistContextType | undefined>(undefined
 export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([]);
   const [totalWishlistItems, setTotalWishlistItems] = useState(0);
+  const [isWishlistOpen, setIsWishlistOpen] = useState(false);
 
   // Get Cart context to enable moving items to cart
-  const { addToCart } = useContext(require("./CartContext").useCart());
+  const { addToCart } = useCart();
 
   // Load wishlist from localStorage on initial render
   useEffect(() => {
@@ -100,7 +104,9 @@ export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       isInWishlist,
       moveToCart,
       clearWishlist,
-      totalWishlistItems
+      totalWishlistItems,
+      isWishlistOpen,
+      setIsWishlistOpen
     }}>
       {children}
     </WishlistContext.Provider>
